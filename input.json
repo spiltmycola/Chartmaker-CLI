@@ -1,0 +1,27 @@
+{
+    "center": "110,110",
+    "radius": "100",
+    "stroke-width": 5,
+    "items": [
+        {
+            "value": 200,
+            "color": "#baeeff"
+        },
+        {
+            "value": 140,
+            "color": "#6ea4c1"
+        },
+        {
+            "value": 89,
+            "color": "#526f9d"
+        },
+        {
+            "value": 120,
+            "color": "#495fa0"
+        },
+        {
+            "value": 20,
+            "color": "#5d4b90"
+        }
+    ]
+}
