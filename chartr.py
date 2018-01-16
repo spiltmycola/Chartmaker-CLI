@@ -137,7 +137,7 @@ for i in range(len(itemValues)):
 
     outFile.write("""Z\" 
         stroke=\"%s\"
-        stroke-linejoin=%s
+        stroke-linejoin=\"%s\"
         stroke-opacity=%d
         stroke-width=%d
         fill=\"%s\"
