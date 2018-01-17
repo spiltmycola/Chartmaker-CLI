@@ -21,28 +21,25 @@ python chartr.py [inputFileName] --out [outputFileName]
 #### 'input.json':
 ```
 {
-    "center": "110,110",
-    "radius": "100",
+    "centre": "310,310",
+    "radius": "200",
     "stroke-width": 5,
+    "show-percent": true,
     "items": [
         {
-            "value": 200,
-            "color": "#baeeff"
-        },
-        {
-            "value": 140,
+            "value": 570,
             "color": "#6ea4c1"
         },
         {
-            "value": 89,
+            "value": 140,
             "color": "#526f9d"
         },
         {
-            "value": 120,
+            "value": 89,
             "color": "#495fa0"
         },
         {
-            "value": 20,
+            "value": 53,
             "color": "#5d4b90"
         }
     ]
@@ -50,4 +47,4 @@ python chartr.py [inputFileName] --out [outputFileName]
 ```
 #### Output:
 
-![Pie Chart](https://github.com/spiltmycola/Chartmaker-CLI/blob/master/sample-chart.PNG)
+![Pie Chart]
