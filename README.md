@@ -5,7 +5,7 @@ A Python CLI that converts json defined objects to charts as svg tags for html
 
 ### Quick Guide:
 1. Enter json data in a file. See format of 'input.json'
-2. Override 'defaultstyles.json' properties such as 'stroke', 'stroke-width'
+2. Override 'defaultstyles.json' properties such as 'font-fill', 'stroke-width'
 3. Open Command Line.
 4. Type:
 ```
@@ -47,4 +47,4 @@ python chartr.py [inputFileName] --out [outputFileName]
 ```
 #### Output:
 
-![Pie Chart]
+![Pie Chart](https://github.com/spiltmycola/Chartmaker-CLI/blob/master/sample-chart.PNG)
