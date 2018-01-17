@@ -3,5 +3,8 @@
     "stroke-linejoin": "bevel",
     "stroke-opacity": 1,
     "stroke-width": 3,
-    "fill": "black"
+    "fill": "black",
+    "font-family": "Arial",
+    "font-fill": "white",
+    "font-outline": "none"
 }

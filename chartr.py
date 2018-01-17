@@ -1,17 +1,7 @@
 import argparse
 import json
 import math
-
-class Point2D:
-    def __init__(self, xCoord, yCoord):
-        self.X = xCoord
-        self.Y = yCoord
-
-    def __str__(self):
-        return "self.X: %0.2f\nself.Y: %0.2f\n" % (self.X, self.Y)
-
-def vectorAdd2D(pointA, pointB):
-    return Point2D(pointA.X + pointB.X, pointA.Y + pointB.Y)
+from simplegeom import *
 
 ''' Read Default Styles '''
 defaultsFile = open('defaultstyles.json')
@@ -31,15 +21,15 @@ except IOError as detail:
 dataObject = json.loads(dataFile.read())
 outFile = open(args.out,"w")
 
-center = Point2D(0,0)
+centre = Point2D(0,0)
 radius = 0
 itemValues = []
 
 '''--- Transpiler Checks and Reading in Data -----------------------------------------------------------'''
 
 ''' Key Existence Checks '''
-if 'center' not in dataObject.keys():
-    print("\'center\' has not been defined.")
+if 'centre' not in dataObject.keys():
+    print("\'centre\' has not been defined.")
     exit()
 if 'radius' not in dataObject.keys():
     print("\'radius\' has not been defined.")
@@ -49,15 +39,15 @@ if 'items' not in dataObject.keys():
     exit()
 
 ''' Value Validity Checks '''
-if not dataObject['center']:
-    print("\'center\' is empty.")
+if not dataObject['centre']:
+    print("\'centre\' is empty.")
     exit()
 try:
-    centerArray = dataObject['center'].split(',')
-    center.X = float(centerArray[0])
-    center.Y = float(centerArray[1])
+    centreArray = dataObject['centre'].split(',')
+    centre.X = float(centreArray[0])
+    centre.Y = float(centreArray[1])
 except:
-    print("\'center\' must be of format: \"float,float\".")
+    print("\'centre\' must be of format: \"float,float\".")
     exit()
 
 if not dataObject['radius']:
@@ -83,34 +73,49 @@ itemValueTotal = 0
 for i in range(len(itemValues)):
     itemValueTotal += itemValues[i]
 
+percentages = []
+
 ''' Convert item values to radians '''
 for i in range(len(itemValues)):
     itemValues[i] /= itemValueTotal
+    percentages.append(itemValues[i]*100)
     itemValues[i] *= 2*math.pi
 
 ''' Finding list of key points on circumference '''
 points = []
 curAngle = 0
+arcCentres = []
 for i in range(len(itemValues)):
-    relativePos = Point2D(math.sin(curAngle)*100, -math.cos(curAngle)*100)
-    points.append(vectorAdd2D(relativePos, center))
+    relativePos = Point2D(math.sin(curAngle)*radius, -math.cos(curAngle)*radius)
+    points.append(vectorAdd2D(relativePos, centre))
+    curAngleBefore = curAngle
     curAngle += itemValues[i]
+    arcCentreAngle = (curAngleBefore + curAngle)/2
+    relativeArcCentre = Point2D(math.sin(arcCentreAngle)*radius, -math.cos(arcCentreAngle)*radius)
+    arcCentres.append(vectorAdd2D(relativeArcCentre, centre))
 
-''' Output to svg format '''
+'''--- Output to svg format -------------------------------------------------------------------------- '''
+
 outFile.write("""<svg height=\"%d\" width=\"%d\">
-    """ %(center.Y+radius+10, center.X+radius+10))
+    """ %(centre.Y+radius+10, centre.X+radius+10))
+
+''' Drawing ''' 
 for i in range(len(itemValues)):
     #Centre Point 
-    outFile.write("<path d=\"M%d,%d " %(center.X, center.Y))
+    outFile.write("<path d=\"M%d,%d " %(centre.X, centre.Y))
     
     #Radius
     outFile.write("L%d,%d " %(points[i].X, points[i].Y))
     
     #Arc
-    if i == len(itemValues) - 1:
-        outFile.write("A%d,%d 0 0,1 %d,%d " %(radius, radius, points[0].X, points[0].Y))
+    if itemValues[i] < math.pi:
+        largeArcFlag = 0
     else:
-        outFile.write("A%d,%d 0 0,1 %d,%d " %(radius, radius, points[i+1].X, points[i+1].Y))
+        largeArcFlag = 1
+    if i == len(itemValues) - 1:
+        outFile.write("A%d,%d 0 %d,1 %d,%d " %(radius, radius, largeArcFlag, points[0].X, points[0].Y))
+    else:
+        outFile.write("A%d,%d 0 %d,1 %d,%d " %(radius, radius, largeArcFlag, points[i+1].X, points[i+1].Y))
     
     #End + Options
     #Take default styles if not specified
@@ -142,4 +147,49 @@ for i in range(len(itemValues)):
         stroke-width=%d
         fill=\"%s\"
     />"""%(stroke, strokeLinejoin, strokeOpacity, strokeWidth, fill))
+
+''' Text '''
+for i in range(len(itemValues)):
+    #Choose text location
+    outMax = 0.9
+    outMin = 0.4
+    if itemValues[i] < math.pi:
+        outNess = outMax - (itemValues[i]/math.pi * (outMax-outMin))
+    else:
+        outNess = outMin
+    textCentre = alongPoints2D(centre, arcCentres[i], outNess)
+    
+    #Taking default styles if not specified
+    if 'font-family' not in dataObject.keys():
+        fontFamily = defaultStyles['font-family']
+    else:
+        fontFamily = dataObject['font-family']
+    if 'font-fill' not in dataObject.keys():
+        fontFill = defaultStyles['font-fill']
+    else:
+        fontFill = dataObject['font-fill']
+    if 'font-outline' not in dataObject.keys():
+        fontOutline = defaultStyles['font-outline']
+    else:
+        fontOutline = dataObject['font-outline']
+    if 'font-size' not in dataObject.keys():
+        fontSize = radius/10
+    else:
+        fontSize = dataObject['font-size']
+    if 'show-percent' not in dataObject.keys():
+        displayText = str(dataObject['items'][i]['value'])
+    elif dataObject['show-percent'] == True:
+        displayText = "%0.1f" %(percentages[i]) + "%"
+    else:
+        displayText = str(dataObject['items'][i]['value'])
+    outFile.write("""<text
+        font-family = \"%s\"
+        fill = \"%s\"
+        stroke = \"%s\"
+        font-size = \"%s\"
+        text-anchor = \"middle\"
+        x = \"%d\"
+        y = \"%d\">%s
+    </text>""" % (fontFamily, fontFill, fontOutline, fontSize, 
+        textCentre.X, textCentre.Y, displayText))
 outFile.write("\n</svg>")
